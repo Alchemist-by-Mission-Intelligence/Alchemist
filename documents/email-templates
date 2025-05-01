@@ -1,0 +1,113 @@
+Here’s the **Email Templates Module** documentation in **Markdown format**, detailing the database schema, API endpoints, and relationships.
+
+---
+
+# 📧 Email Templates Module – Alchemist AI
+
+The **Email Templates Module** provides a flexible and dynamic way to manage email templates within the system. It supports different types of emails that are sent to users, such as welcome emails, password reset emails, notification emails, etc. This module is designed for easy customization and integration with the notification system.
+
+---
+
+## 📦 Features
+
+- Centralized management of all email templates.
+- Create, update, and delete email templates dynamically.
+- Support for placeholders and dynamic content within email templates.
+- Ability to preview email templates before sending.
+- Integration with the **Notifications Module** to send emails based on events.
+- Admin access control for managing email templates.
+- Role-based access for sending specific types of emails.
+
+---
+
+## 🧾 Database Schema
+
+### Table: `email_templates`
+
+| Field          | Type      | Description                                                       |
+|----------------|-----------|-------------------------------------------------------------------|
+| id             | UUID      | Primary key (UUID)                                                |
+| name           | String    | Name of the email template (e.g., 'welcome_email')               |
+| subject        | String    | Subject line for the email                                       |
+| body           | Text      | HTML body of the email                                           |
+| variables      | JSON      | JSON object containing the placeholders/variables in the template (e.g., {name: 'user_name'}) |
+| description    | String    | Optional description of what the template is for                 |
+| created_at     | TIMESTAMP | Timestamp when the email template was created                     |
+| updated_at     | TIMESTAMP | Timestamp when the email template was last updated                |
+
+### Table: `email_template_logs`
+
+| Field          | Type      | Description                                                       |
+|----------------|-----------|-------------------------------------------------------------------|
+| id             | UUID      | Primary key (UUID)                                                |
+| email_template_id | UUID    | Foreign key referencing `email_templates.id`                      |
+| user_id        | UUID      | Foreign key referencing `users.id`                                |
+| sent_at        | TIMESTAMP | Timestamp when the email was sent                                 |
+| status         | String    | Status of the email (e.g., 'sent', 'failed')                      |
+| error_message  | String    | Optional error message if sending fails                          |
+| created_at     | TIMESTAMP | Timestamp when the log was created                                |
+| updated_at     | TIMESTAMP | Timestamp when the log was last updated                           |
+
+### Relationships
+
+- Each **Email Template** can be associated with multiple **Email Template Logs** to track when and to whom it was sent.
+- The **variables** field stores a JSON object, allowing dynamic data insertion when emails are sent (e.g., user’s first name).
+- **Email Template Logs** allow you to track the status of sent emails, including any errors encountered during the process.
+
+---
+
+## 📡 API Endpoints
+
+### 👤 Admin Email Templates Management
+
+| Method | Endpoint                                | Description                                               |
+|--------|-----------------------------------------|-----------------------------------------------------------|
+| GET    | /api/admin/email-templates              | Retrieve all email templates                               |
+| POST   | /api/admin/email-templates              | Create a new email template                                |
+| GET    | /api/admin/email-templates/{id}         | Retrieve a specific email template by ID                   |
+| PUT    | /api/admin/email-templates/{id}         | Update an existing email template                           |
+| DELETE | /api/admin/email-templates/{id}         | Delete a specific email template                           |
+
+### 👤 User Email Sending (Triggered Events)
+
+| Method | Endpoint                                | Description                                               |
+|--------|-----------------------------------------|-----------------------------------------------------------|
+| POST   | /api/user/send-email                   | Send a specific email template to the user (use template ID) |
+
+### 👤 Preview Email Template
+
+| Method | Endpoint                                | Description                                               |
+|--------|-----------------------------------------|-----------------------------------------------------------|
+| GET    | /api/admin/email-templates/{id}/preview | Preview a specific email template (for testing purposes)  |
+
+### 👤 Email Template Logs
+
+| Method | Endpoint                                | Description                                               |
+|--------|-----------------------------------------|-----------------------------------------------------------|
+| GET    | /api/admin/email-template-logs          | Retrieve logs of sent emails                               |
+| GET    | /api/admin/email-template-logs/{id}     | Retrieve specific email template log by ID                 |
+
+---
+
+## 📌 Notes
+
+- **Email Templates** can contain dynamic variables that are replaced with actual values when an email is sent (e.g., `{{user_name}}`).
+- The **Email Template Logs** table is used to track email send status, providing an audit trail of sent emails and any errors encountered during sending.
+- The API allows for both admin management of templates (creating, editing, deleting) and triggering the sending of emails via event-driven actions (e.g., user registration, password reset).
+- The **preview** endpoint helps admins test the email templates before they are used in production, ensuring they render correctly.
+
+---
+
+## ✅ Future Enhancements
+
+- [ ] Add support for **email template versioning**, allowing admins to track changes and revert to older versions.
+- [ ] Enable **multi-language support** for email templates, allowing different languages based on user preferences.
+- [ ] Integrate with **third-party email services** (e.g., SendGrid, Mailgun) for better email delivery and tracking.
+- [ ] Implement **dynamic email scheduling** and **delayed sending** features.
+- [ ] Add **A/B testing** for email templates to optimize user engagement.
+
+---
+
+This module integrates closely with the **Users** module for sending personalized emails and with the **Audit Logs** module for tracking email delivery statuses.
+
+---
